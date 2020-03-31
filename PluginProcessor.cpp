@@ -95,7 +95,12 @@ void LimiterAudioProcessor::changeProgramName (int index, const String& newName)
 //==============================================================================
 void LimiterAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
+    delayBuffer = AudioSampleBuffer(1, 10);
+    delayBuffer.clear();
 
+    limiterThresh = 0.01f;
+    gain = 1.0f;
+    xPeak = 0.0f;
 }
 
 void LimiterAudioProcessor::releaseResources()
@@ -131,17 +136,9 @@ bool LimiterAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) 
 void LimiterAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
 {
     auto* data = buffer.getWritePointer(0);
-    float limiterThresh, gain, xPeak;
-    AudioSampleBuffer delayBuffer;
     float attackTime, releaseTime, coeff;
     attackTime = 0.3f;
     releaseTime = 0.01f;
-    delayBuffer = AudioSampleBuffer(1, 10);
-    delayBuffer.clear();
-
-    limiterThresh = 0.4f;
-    gain = 1.0f;
-    xPeak = 0.0f;
     
     int writeIndex, readIndex, delayIndex, bufferLength;
     delayIndex = 2;
